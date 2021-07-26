@@ -17,6 +17,15 @@
         "linebreak-style": 0,
         "semi": 0,
         "indent": "off",
-        "max-len": "off"
+        "max-len": "off",
+        "require-jsdoc": ["error", {
+            "require": {
+                "FunctionDeclaration": true,
+                "MethodDefinition": false,
+                "ClassDeclaration": false,
+                "ArrowFunctionExpression": false,
+                "FunctionExpression": false
+            }
+        }]
     }
 }

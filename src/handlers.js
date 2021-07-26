@@ -1,5 +1,5 @@
-const nanoid = require('nanoid');
-const bookshelf = require('./bookshelf');
+const books = require('./books');
+const {nanoid} = require('nanoid');
 
 const addBookshelfHandler = (request, h) => {
   const {
@@ -14,11 +14,12 @@ const addBookshelfHandler = (request, h) => {
   } = request.payload;
 
   const id = nanoid(16);
-  const insertAt = new Date().toISOString();
-  const updateAt = insertAt;
-  const finished = pageCount === readPage;
+  const insertedAt = new Date().toISOString();
+  const updatedAt = insertedAt;
+  const finished = (pageCount === readPage) ? true : false;
 
-  const newBookshelf = {
+  const newBooks = {
+    id,
     name,
     year,
     author,
@@ -26,28 +27,15 @@ const addBookshelfHandler = (request, h) => {
     publisher,
     pageCount,
     readPage,
-    reading,
-    id,
-    insertAt,
-    updateAt,
     finished,
-  };
-  bookshelf.push(newBookshelf);
-
-  const isSuccsess = bookshelf.filter((book) => book.id === id).length > 0;
-  if (isSuccsess) {
-    const response = h.response({
-      status: 'success',
-      message: 'Buku berhasil ditambahkan',
-      data: {
-        bookId: id,
-      },
-    });
-    response.code(201);
-    return response;
+    reading,
+    insertedAt,
+    updatedAt,
   }
 
-  if (name === '') {
+  books.push(newBooks);
+
+  if (!name) {
     const response = h.response({
       status: 'fail',
       message: 'Gagal menambahkan buku. Mohon isi nama buku',
@@ -59,17 +47,30 @@ const addBookshelfHandler = (request, h) => {
   if (readPage > pageCount) {
     const response = h.response({
       status: 'fail',
-      message: 'Gagal menambahlan buku. readPage tidak boleh lebih besar dari pageCount',
+      message: 'Gagal menambahkan buku. readPage tidak boleh lebih besar dari pageCount',
     });
     response.code(400);
     return response;
   }
 
+  const isSuccess = books.filter((data) => data.id === id).length > 0;
+
+  if (isSuccess) {
+    const response = h.response({
+      status: 'success',
+      message: 'Buku berhasil ditambahkan',
+      data: {
+        bookId: id,
+      },
+    });
+    response.code(201);
+    return response;
+  }
+
   const response = h.response({
-    status: 'fail',
+    status: 'error',
     message: 'Buku gagal ditambahkan',
   });
-
   response.code(500);
   return response;
 };
@@ -77,7 +78,7 @@ const addBookshelfHandler = (request, h) => {
 const getAllBookshelfHandler = () => ({
   status: 'success',
   data: {
-    bookshelf,
+    books,
   },
 });
 
